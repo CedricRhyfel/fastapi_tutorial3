@@ -1,0 +1,2 @@
+Logics to implement:
+- Logout Route

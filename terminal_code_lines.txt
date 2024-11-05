@@ -1,0 +1,5 @@
+py -3 -m venv <venv_name> : create virtual environment in folder.
+\venv\Scripts\activate.bat : activates the python executer from the venv in the terminal.
+pip install fastapi[all] : installs the fastapi package with all its dependencies and functions.
+uvicorn main:app --reload : automatically reloads server when you save changes in your code.
+uvicorn app.main:app --reload: starts the FASTAPI instance from the app package/folder.

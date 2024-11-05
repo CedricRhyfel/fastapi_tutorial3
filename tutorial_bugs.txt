@@ -1,0 +1,109 @@
+FASTAPI Tutorials Bugs Log:
+27/10/2024:
+- When implementing the votes field into the data returned when querying all posts from the posts table,
+	by removing the response_model from the path-op, we encountered this error:
+	  "TypeError: tuple indices must be integers or slices, not str"
+
+	- Solution:
+		Found in the comments of the video:
+		"for those of you who are still getting an error at 10:22:17 like:
+		TypeError('cannot convert dictionary update sequence element #0 to a sequence')
+		try to add this line of code before returning results:
+		results = list ( map (lambda x : x._mapping, results) )
+		When querying the db with two arguments in the .query method, sqlalchemy returns a list of sqlalchemy.engine.row.Row objects. As far as I have acknowledged from the documentation:
+		"Changed in version 1.4:
+		Renamed RowProxy to .Row. .Row is no longer a "proxy" object in that it contains the final form of data within it, and now acts mostly like a named tuple. Mapping-like functionality is moved to the .Row._mapping attribute, but will remain available in SQLAlchemy 1.x ... "
+		So, in my understanding, we are not allowed to retrieve the jsonized data directly from the query anymore; the ._mapping method takes care of building the dict structure with "Post" and "votes" keys, and using map does this for each .Row element in the list; we then convert map to a list to be able to return it. 
+		Please feel free to correct me if I'm wrong, or if you have any better workaround."
+
+
+- When validating updated data with pydantic using the PostOut schema, we couldn't validate the data and kept getting errors for all fields.
+	We kept encoutering this error:
+	fastapi.exceptions.ResponseValidationError: 70 validation errors:
+  	{'type': 'missing', 'loc': ('response', 0, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}
+  	{'type': 'missing', 'loc': ('response', 0, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}
+  	{'type': 'missing', 'loc': ('response', 0, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}
+  	{'type': 'missing', 'loc': ('response', 0, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}      
+  	{'type': 'missing', 'loc': ('response', 0, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}        
+	  {'type': 'missing', 'loc': ('response', 0, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}
+	  {'type': 'missing', 'loc': ('response', 0, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EC10>, 'upvotes': 3}}
+	  {'type': 'missing', 'loc': ('response', 1, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 1, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 1, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 1, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}      
+	  {'type': 'missing', 'loc': ('response', 1, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}        
+	  {'type': 'missing', 'loc': ('response', 1, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 1, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ECD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 2, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 2, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 2, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 2, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 2, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 2, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 2, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42ED90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 3, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 3, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 3, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 3, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 3, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 3, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}
+		  {'type': 'missing', 'loc': ('response', 3, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EE50>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 4, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 4, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 4, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 4, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 4, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 4, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 4, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EF10>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 5, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 5, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 5, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 5, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 5, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 5, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 5, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F010>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 6, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}
+	  {'type': 'missing', 'loc': ('response', 6, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}
+	  {'type': 'missing', 'loc': ('response', 6, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}
+	  {'type': 'missing', 'loc': ('response', 6, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}      
+	  {'type': 'missing', 'loc': ('response', 6, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}        
+	  {'type': 'missing', 'loc': ('response', 6, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}
+	  {'type': 'missing', 'loc': ('response', 6, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F0D0>, 'upvotes': 2}}
+	  {'type': 'missing', 'loc': ('response', 7, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 7, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 7, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 7, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 7, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 7, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 7, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC426A90>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 8, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 8, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 8, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 8, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}      
+	  {'type': 'missing', 'loc': ('response', 8, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}        
+	  {'type': 'missing', 'loc': ('response', 8, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 8, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42F190>, 'upvotes': 1}}
+	  {'type': 'missing', 'loc': ('response', 9, 'title'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 9, 'content'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 9, 'id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 9, 'created_at'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}      
+	  {'type': 'missing', 'loc': ('response', 9, 'owner_id'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}        
+	  {'type': 'missing', 'loc': ('response', 9, 'owner'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}
+	  {'type': 'missing', 'loc': ('response', 9, 'votes'), 'msg': 'Field required', 'input': {'Post': <app.models.Post object at 0x000002BDCC42EFD0>, 'upvotes': 0}}
+
+
+	- Solution:
+		Found in the comments:
+		"If you are watching this after Jan 2023, and you install SQLAlchemy using the pip install command, it will install version 2.0.x or above by default. The code at the 10:25:00 hr marker where you get count is incompatible with the new version of SQLAlchemy.
+		I spent a few hours figuring out why my exact same code isn't working.
+		Use the following command to install (or re-install) to a compatible version of SQLAlchemy
+		pip install --force-reinstall -v "SQLAlchemy==1.4.46"
+
+		Also, your PostOut pydantic schema should derive from BaseModel, not Post or PostBase."
+
+
+
+
+
+
+

@@ -1,0 +1,18 @@
+SELECT * FROM products;
+SELECT * FROM products WHERE name = 'TV';
+SELECT * FROM products WHERE price >= 50;
+SELECT * FROM products WHERE price >= 50 AND on_sale = true;
+SELECT * FROM products WHERE name NOT LIKE '%Watch%';
+SELECT * FROM products ORDER BY price ASC;
+SELECT * FROM products LIMIT 5;
+SELECT * FROM products OFFSET 8;
+
+INSERT INTO products (name, price, inventory) VALUES ('ASUS ROG Phone 7', 900, 40), ('Iphone 15 Pro', 1499, 30), ('Samsung Phone Galaxy S24 Ultra', 1599, 45) RETURNING *;
+DELETE FROM products WHERE id = 10 RETURNING *;
+DELETE FROM users WHERE id IN (2, 34, 35);
+UPDATE products SET on_sale = true WHERE id >= 17 RETURNING *;
+UPDATE products SET inventory = 69 WHERE id = 20 RETURNING *;
+
+SELECT * FROM posts LEFT JOIN users ON posts.owner_id = users.id;
+SELECT users.id, users.email, COUNT(posts.id) as user_post_count FROM posts RIGHT JOIN users ON posts.owner_id = users.id GROUP BY users.id;
+SELECT posts.*, COUNT(votes.post_id) as upvotes FROM posts LEFT JOIN votes ON posts.id = votes.post_id GROUP BY posts.id ORDER BY posts.id ASC;
